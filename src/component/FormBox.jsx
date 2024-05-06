@@ -22,18 +22,17 @@ function FormBox({ addAnswerData, active, onChangeFormValue }) {
   const [form] = Form.useForm();
 
   const typeAnswer = Form.useWatch('type', form);
-  const answers = Form.useWatch('answers', form);
 
   const onClearForm = () => {
     form.resetFields();
   };
 
   const handleSubmitForm = (values) => {
-    if (active === null) {
+    if (active) {
+      onChangeFormValue(values);
+    } else {
       addAnswerData(values);
       onClearForm();
-    } else {
-      onChangeFormValue(values);
     }
   };
 
@@ -59,10 +58,7 @@ function FormBox({ addAnswerData, active, onChangeFormValue }) {
           answers: [{ text: 'test', is_correct: false }],
         }}
         onFinish={(values) => {
-          // addAnswerData(values);
-          // onSave(values);
-          // onClearForm();
-          onChangeFormValue(values);
+          handleSubmitForm(values);
         }}>
         <Form.Item
           name="name"
