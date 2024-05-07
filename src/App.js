@@ -4,6 +4,7 @@ import { useState } from 'react';
 import ListQuestionData from './component/ListQuestionData';
 import { OPTION_TYPE_MULTI } from './constants/answers';
 import { OPTION_TYPE_SINGLE } from './constants/answers';
+import TableBox from './component/TableBox/TableBox';
 
 function App() {
   const [answerData, setAnswerData] = useState([
@@ -35,6 +36,7 @@ function App() {
         answerData={answerData}
         handleClickEdit={setActiveIndex}
       />
+      <TableBox />
     </>
   );
 }

@@ -38,7 +38,6 @@ function FormBox({ addAnswerData, active, onChangeFormValue }) {
 
   useEffect(() => {
     form.setFieldsValue(active);
-    console.log(active);
   }, [active]);
   return (
     <div
@@ -46,7 +45,6 @@ function FormBox({ addAnswerData, active, onChangeFormValue }) {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        // height: '100vh',
       }}>
       <Form
         {...layout}
