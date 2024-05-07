@@ -1,106 +1,43 @@
-import { Button, Radio, Form, Input } from 'antd';
-
+import FormBox from './component/FormBox';
 import './App.css';
-import { useWatch } from 'antd/es/form/Form';
 import { useState } from 'react';
-
-const layout = {
-  labelCol: {
-    span: 8,
-  },
-  wrapperCol: {
-    span: 16,
-  },
-};
-const tailLayout = {
-  wrapperCol: {
-    offset: 8,
-    span: 16,
-  },
-};
+import ListQuestionData from './component/ListQuestionData';
+import { OPTION_TYPE_MULTI } from './constants/answers';
+import { OPTION_TYPE_SINGLE } from './constants/answers';
+import TableBox from './component/TableBox/TableBox';
 
 function App() {
-  const [form] = Form.useForm();
-  const typeAnswer = Form.useWatch('options', form);
-  const [arrayInput, setArrayInput] = useState([1, 2, 3]);
+  const [answerData, setAnswerData] = useState([
+    { name: 'test1', type: OPTION_TYPE_SINGLE, answer: 'Test1' },
+  ]);
+  const [activeIndex, setActiveIndex] = useState(null);
 
-  const handleDeleteInput = (value) => {
-    setArrayInput(arrayInput.filter((elem) => elem !== value));
+  const handleAnswerData = (values) => {
+    setAnswerData((prev) => [...prev, values]);
   };
 
-  const handleAddInput = () => {
-    const count = arrayInput.at(-1);
-    setArrayInput((prev) => [...prev, count + 1]);
-    console.log(arrayInput);
+  const onChangeFormValue = (values) => {
+    setAnswerData((prev) => {
+      let newValue = prev;
+      newValue[activeIndex] = values;
+
+      return [...newValue];
+    });
   };
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100vh',
-      }}>
-      <Form {...layout} form={form} name="control-hooks">
-        <Form.Item
-          name="question"
-          label="Question"
-          rules={[
-            {
-              required: true,
-            },
-          ]}>
-          <Input />
-        </Form.Item>
-
-        <Form.Item label="Options" name="options">
-          <Radio.Group>
-            <Radio value="one"> One option </Radio>
-            <Radio value="multi"> Multi option </Radio>
-          </Radio.Group>
-        </Form.Item>
-        {typeAnswer === 'one' && (
-          <Form.Item
-            name="answer"
-            label="Answer"
-            rules={[
-              {
-                required: true,
-              },
-            ]}>
-            <Input />
-          </Form.Item>
-        )}
-        {typeAnswer === 'multi' && (
-          <Form.Item label="Answers" name="answers">
-            {arrayInput.map((input, i) => (
-              <div
-                key={i}
-                style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
-                <Input />
-                <Button
-                  type="primary"
-                  htmlType="button"
-                  onClick={() => handleDeleteInput(input)}>
-                  X
-                </Button>
-              </div>
-            ))}
-            <Button type="primary" htmlType="button" onClick={handleAddInput}>
-              Add
-            </Button>
-          </Form.Item>
-        )}
-
-        <Form.Item {...tailLayout}>
-          <Button type="primary" htmlType="submit">
-            Submit
-          </Button>
-          <Button htmlType="button">Reset</Button>
-        </Form.Item>
-      </Form>
-    </div>
+    <>
+      <FormBox
+        addAnswerData={handleAnswerData}
+        active={answerData[activeIndex]}
+        onChangeFormValue={onChangeFormValue}
+      />
+      <ListQuestionData
+        answerData={answerData}
+        handleClickEdit={setActiveIndex}
+      />
+      <TableBox />
+    </>
   );
 }
 
