@@ -1,13 +1,18 @@
-import { Input, Table } from 'antd';
+import { Table } from 'antd';
 import tableData from '../../data.json';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 
 import { Button, Space, Tag } from 'antd';
 import { DateTime } from 'luxon';
-import { STATUSES } from '../../constants/table_status';
+import {
+  STATUSES,
+  STATUS_ACCEPTED,
+  STATUS_DECLINED,
+  STATUS_DONE,
+  STATUS_WAIT_APPROVEMENT,
+} from '../../constants/table_status';
 import { COLORS } from '../../constants/table_tag_color';
-import { SearchOutlined } from '@ant-design/icons';
-import Highlighter from 'react-highlight-words';
+
 import SearchBar from './SearchBar';
 import { searchValueToString } from '../../utils/searchValueToString';
 import { searchValueToStatus } from '../../utils/searchValueToStatus';
@@ -19,21 +24,6 @@ const TABLE_SUB_ITEMS_COLOR = '#4096FF';
 function TableBox() {
   const [dataSource, setDataSource] = useState(tableData.data);
 
-  const [searchText, setSearchText] = useState('');
-  const [searchedColumn, setSearchedColumn] = useState('');
-  const searchInput = useRef(null);
-
-  const handleSearch = (selectedKeys, confirm, dataIndex) => {
-    confirm();
-    setSearchText(selectedKeys[0]);
-    setSearchedColumn(dataIndex);
-  };
-
-  const handleReset = (clearFilters) => {
-    clearFilters();
-    setSearchText('');
-  };
-
   const columns = [
     {
       title: 'Address',
@@ -41,8 +31,7 @@ function TableBox() {
       key: 'address',
       filterDropdown: (props) => <SearchBar {...props} />,
 
-      onFilter: (value, record) =>
-        searchValueToString(value, record, 'address'),
+      onFilter: (value, record) => searchValueToString(value, record.address),
       render: ({ city, street }) => {
         return (
           <>
@@ -64,7 +53,7 @@ function TableBox() {
       dataIndex: 'client',
       key: 'client',
       filterDropdown: (props) => <SearchBar {...props} />,
-      onFilter: (value, record) => searchValueToString(value, record, 'client'),
+      onFilter: (value, record) => searchValueToString(value, record.client),
       render: ({ name, phoneNumber }) => {
         return (
           <>
@@ -85,7 +74,7 @@ function TableBox() {
       title: 'Status',
       dataIndex: 'status',
       key: 'status',
-      onFilter: (value, record) => searchValueToStatus(value, record),
+      onFilter: (value, record) => searchValueToStatus(value, record.status),
       render: (status) => (
         <span style={{ color: STATUSES[status].color }}>
           {STATUSES[status].text}
@@ -94,20 +83,20 @@ function TableBox() {
       filterMultiple: false,
       filters: [
         {
-          text: 'Done',
-          value: STATUSES.done.text,
+          text: STATUSES.done.text,
+          value: STATUS_DONE,
         },
         {
-          text: 'Wait approvement',
-          value: STATUSES.wait_approvement.text,
+          text: STATUSES.wait_approvement.text,
+          value: STATUS_WAIT_APPROVEMENT,
         },
         {
-          text: 'Declined',
-          value: STATUSES.declined.text,
+          text: STATUSES.declined.text,
+          value: STATUS_DECLINED,
         },
         {
-          text: 'Accepted',
-          value: STATUSES.accepted.text,
+          text: STATUSES.accepted.text,
+          value: STATUS_ACCEPTED,
         },
       ],
     },
@@ -115,27 +104,17 @@ function TableBox() {
       title: 'Departments',
       key: 'departments',
       dataIndex: 'departments',
-      render: (departs) => {
-        return (
-          <>
-            {departs.map((depart, index) => {
-              if (!COLORS[depart.name]) {
-                return (
-                  <Tag color={'blue'} key={index}>
-                    {depart.name}
-                  </Tag>
-                );
-              }
-              return (
-                <Tag color={COLORS[depart.name]?.color} key={index}>
-                  {COLORS[depart.name]?.text}
-                </Tag>
-              );
-            })}
-          </>
-        );
-      },
+      render: (departs) => (
+        <>
+          {departs.map((depart, index) => (
+            <Tag color={COLORS[depart.name]?.color || 'blue'} key={index}>
+              {COLORS[depart.name]?.text || depart.name}
+            </Tag>
+          ))}
+        </>
+      ),
     },
+
     {
       title: 'Url',
       key: 'url',
@@ -150,12 +129,10 @@ function TableBox() {
       title: 'Created',
       dataIndex: 'created_at',
       key: 'Created',
-      onFilter: (value, record) => {
-        return searchDatePeriod(value, record);
-      },
+      onFilter: (value, record) => searchDatePeriod(value, record.created_at),
       filterDropdown: (props) => <PickerDate {...props} />,
       render: (created_at) => {
-        const dateTime = DateTime.fromISO(created_at, { zone: 'utc' });
+        const dateTime = DateTime.fromISO(created_at);
         const formattedDateTime = dateTime.toFormat('yyyy-MM-dd HH:mm:ss');
         return <span>{formattedDateTime}</span>;
       },
