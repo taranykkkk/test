@@ -1,29 +1,59 @@
-import { Table } from 'antd';
+import { Input, Table } from 'antd';
 import tableData from '../../data.json';
-import { useState } from 'react';
-// import { columns } from './columns';
+import { useRef, useState } from 'react';
 
 import { Button, Space, Tag } from 'antd';
 import { DateTime } from 'luxon';
-import { colorTags } from './columns';
+import { STATUSES } from '../../constants/table_status';
+import { COLORS } from '../../constants/table_tag_color';
+import { SearchOutlined } from '@ant-design/icons';
+import Highlighter from 'react-highlight-words';
+import SearchBar from './SearchBar';
+import { searchValueToString } from '../../utils/searchValueToString';
+import { searchValueToStatus } from '../../utils/searchValueToStatus';
+import PickerDate from './PickerDate';
+import { searchDatePeriod } from '../../utils/searchDatePeriod';
+
+const TABLE_SUB_ITEMS_COLOR = '#4096FF';
 
 function TableBox() {
   const [dataSource, setDataSource] = useState(tableData.data);
+
+  const [searchText, setSearchText] = useState('');
+  const [searchedColumn, setSearchedColumn] = useState('');
+  const searchInput = useRef(null);
+
+  const handleSearch = (selectedKeys, confirm, dataIndex) => {
+    confirm();
+    setSearchText(selectedKeys[0]);
+    setSearchedColumn(dataIndex);
+  };
+
+  const handleReset = (clearFilters) => {
+    clearFilters();
+    setSearchText('');
+  };
 
   const columns = [
     {
       title: 'Address',
       dataIndex: 'address',
       key: 'address',
-      render: (obj) => {
+      filterDropdown: (props) => <SearchBar {...props} />,
+
+      onFilter: (value, record) =>
+        searchValueToString(value, record, 'address'),
+      render: ({ city, street }) => {
         return (
           <>
             <span>
-              <strong style={{ color: '#4096FF' }}>City:</strong> {obj.city}
+              <strong style={{ color: TABLE_SUB_ITEMS_COLOR }}>City:</strong>{' '}
+              {city}
             </span>
             <br />
             <span>
-              <strong style={{ color: '#4096FF' }}>Street:</strong> {obj.street}
+              <strong style={{ color: TABLE_SUB_ITEMS_COLOR }}>Street:</strong>{' '}
+              {street}
             </span>
           </>
         );
@@ -33,16 +63,19 @@ function TableBox() {
       title: 'Client',
       dataIndex: 'client',
       key: 'client',
-      render: (obj) => {
+      filterDropdown: (props) => <SearchBar {...props} />,
+      onFilter: (value, record) => searchValueToString(value, record, 'client'),
+      render: ({ name, phoneNumber }) => {
         return (
           <>
             <span>
-              <strong style={{ color: '#4096FF' }}>Name:</strong> {obj.name}
+              <strong style={{ color: TABLE_SUB_ITEMS_COLOR }}>Name:</strong>{' '}
+              {name}
             </span>
             <br />
             <span>
-              <strong style={{ color: '#4096FF' }}>Phone:</strong>{' '}
-              {obj.phoneNumber}
+              <strong style={{ color: TABLE_SUB_ITEMS_COLOR }}>Phone:</strong>{' '}
+              {phoneNumber}
             </span>
           </>
         );
@@ -52,45 +85,50 @@ function TableBox() {
       title: 'Status',
       dataIndex: 'status',
       key: 'status',
-      render: (status) => {
-        switch (status) {
-          case 'declined': {
-            return <span style={{ color: 'red' }}>{status.toUpperCase()}</span>;
-          }
-          case 'done': {
-            return (
-              <span style={{ color: 'green' }}>{status.toUpperCase()}</span>
-            );
-          }
-          case 'wait_approvement': {
-            return (
-              <span style={{ color: '#dddd02' }}>
-                {status.replace('_', ' ').toUpperCase()}
-              </span>
-            );
-          }
-          case 'accepted': {
-            return (
-              <span style={{ color: '#03fc03' }}>{status.toUpperCase()}</span>
-            );
-          }
-        }
-      },
+      onFilter: (value, record) => searchValueToStatus(value, record),
+      render: (status) => (
+        <span style={{ color: STATUSES[status].color }}>
+          {STATUSES[status].text}
+        </span>
+      ),
+      filterMultiple: false,
+      filters: [
+        {
+          text: 'Done',
+          value: STATUSES.done.text,
+        },
+        {
+          text: 'Wait approvement',
+          value: STATUSES.wait_approvement.text,
+        },
+        {
+          text: 'Declined',
+          value: STATUSES.declined.text,
+        },
+        {
+          text: 'Accepted',
+          value: STATUSES.accepted.text,
+        },
+      ],
     },
     {
       title: 'Departments',
       key: 'departments',
       dataIndex: 'departments',
       render: (departs) => {
-        console.log(departs);
         return (
           <>
             {departs.map((depart, index) => {
-              let colortest = colorTags(depart.name);
-              console.log(colortest);
+              if (!COLORS[depart.name]) {
+                return (
+                  <Tag color={'blue'} key={index}>
+                    {depart.name}
+                  </Tag>
+                );
+              }
               return (
-                <Tag color={colortest} key={index}>
-                  {depart.name.toUpperCase()}
+                <Tag color={COLORS[depart.name]?.color} key={index}>
+                  {COLORS[depart.name]?.text}
                 </Tag>
               );
             })}
@@ -103,7 +141,7 @@ function TableBox() {
       key: 'url',
       dataIndex: 'track_url',
       render: (url) => (
-        <a href={url} target="blank">
+        <a href={url} target="_blank">
           {url}
         </a>
       ),
@@ -112,6 +150,10 @@ function TableBox() {
       title: 'Created',
       dataIndex: 'created_at',
       key: 'Created',
+      onFilter: (value, record) => {
+        return searchDatePeriod(value, record);
+      },
+      filterDropdown: (props) => <PickerDate {...props} />,
       render: (created_at) => {
         const dateTime = DateTime.fromISO(created_at, { zone: 'utc' });
         const formattedDateTime = dateTime.toFormat('yyyy-MM-dd HH:mm:ss');
@@ -130,16 +172,9 @@ function TableBox() {
   ];
 
   const handleClickDelete = (id) => {
-    const newData = dataSource.filter((item) => item.id !== id);
-    setDataSource(newData);
+    setDataSource((prev) => prev.filter((item) => item.id !== id));
   };
-  return (
-    <Table
-      columns={columns}
-      dataSource={dataSource}
-      rowKey={(record) => record.id}
-    />
-  );
+  return <Table columns={columns} dataSource={dataSource} rowKey="id" />;
 }
 
 export default TableBox;
