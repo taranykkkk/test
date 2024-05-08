@@ -8,11 +8,13 @@ function MenuBox() {
     <header className={styles.header}>
       <div>Logo</div>
       <nav>
-        {routes.map((route) => (
-          <li key={route.name}>
-            <Link to={route.path}>{route.name}</Link>
-          </li>
-        ))}
+        <ul>
+          {routes.map((route) => (
+            <li key={route.name}>
+              <Link to={route.path}>{route.name}</Link>
+            </li>
+          ))}
+        </ul>
       </nav>
     </header>
   );
