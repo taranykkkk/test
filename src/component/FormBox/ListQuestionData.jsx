@@ -1,17 +1,14 @@
 import { Button } from 'antd';
 import React from 'react';
-import { OPTION_TYPE_MULTI } from '../../constants/answers';
-import { OPTION_TYPE_SINGLE } from '../../constants/answers';
+import { OPTION_TYPE_MULTI, OPTION_TYPE_SINGLE } from '../../constants/answers';
 
 function ListQuestionData({ answerData, handleClickEdit }) {
   return (
     <div
       style={{
         display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'start',
-        flexDirection: 'column',
-        padding: '0 25px',
+        gap: '20px',
+        flexWrap: 'wrap',
       }}>
       {answerData?.map((elem, index) => (
         <ul
@@ -21,6 +18,7 @@ function ListQuestionData({ answerData, handleClickEdit }) {
             border: '1px solid #4096FF',
             borderRadius: '10px',
             padding: '20px',
+            margin: '0',
           }}>
           <li>Name question: {elem.name} </li>
           <li>Type Answer: {elem.type}</li>
