@@ -1,7 +1,7 @@
 import { Button } from 'antd';
 import React from 'react';
-import { OPTION_TYPE_MULTI } from '../constants/answers';
-import { OPTION_TYPE_SINGLE } from '../constants/answers';
+import { OPTION_TYPE_MULTI } from '../../constants/answers';
+import { OPTION_TYPE_SINGLE } from '../../constants/answers';
 
 function ListQuestionData({ answerData, handleClickEdit }) {
   return (
@@ -11,6 +11,7 @@ function ListQuestionData({ answerData, handleClickEdit }) {
         justifyContent: 'center',
         alignItems: 'start',
         flexDirection: 'column',
+        padding: '0 25px',
       }}>
       {answerData?.map((elem, index) => (
         <ul
