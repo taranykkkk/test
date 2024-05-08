@@ -1,10 +1,12 @@
-import FormBox from './component/FormBox';
+import FormBox from './component/FormBox/FormBox';
 import './App.css';
 import { useState } from 'react';
-import ListQuestionData from './component/ListQuestionData';
-import { OPTION_TYPE_MULTI } from './constants/answers';
+import ListQuestionData from './component/FormBox/ListQuestionData';
 import { OPTION_TYPE_SINGLE } from './constants/answers';
 import TableBox from './component/TableBox/TableBox';
+import MenuBox from './component/MenuBox/MenuBox';
+import Main from './component/Main/Main';
+import { Routes, Route } from 'react-router-dom';
 
 function App() {
   const [answerData, setAnswerData] = useState([
@@ -27,16 +29,27 @@ function App() {
 
   return (
     <>
-      <FormBox
-        addAnswerData={handleAnswerData}
-        active={answerData[activeIndex]}
-        onChangeFormValue={onChangeFormValue}
-      />
-      <ListQuestionData
-        answerData={answerData}
-        handleClickEdit={setActiveIndex}
-      />
-      <TableBox />
+      <MenuBox />
+      <Routes>
+        <Route path="/" element={<Main />} />
+        <Route
+          path="/form"
+          element={
+            <>
+              <FormBox
+                addAnswerData={handleAnswerData}
+                active={answerData[activeIndex]}
+                onChangeFormValue={onChangeFormValue}
+              />
+              <ListQuestionData
+                answerData={answerData}
+                handleClickEdit={setActiveIndex}
+              />
+            </>
+          }
+        />
+        <Route path="/table" element={<TableBox />} />
+      </Routes>
     </>
   );
 }

@@ -1,7 +1,7 @@
 import { Button, Radio, Form, Input, Checkbox, Row, Col } from 'antd';
 import { useEffect } from 'react';
-import { OPTION_TYPE_MULTI } from '../constants/answers';
-import { OPTION_TYPE_SINGLE } from '../constants/answers';
+import { OPTION_TYPE_MULTI } from '../../constants/answers';
+import { OPTION_TYPE_SINGLE } from '../../constants/answers';
 
 const layout = {
   labelCol: {
