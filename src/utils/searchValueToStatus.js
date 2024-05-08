@@ -1,3 +1,3 @@
-export const searchValueToStatus = (searchValue, record) => {
-  return record.status.includes(searchValue);
+export const searchValueToStatus = (searchValue, recordValue) => {
+  return recordValue.includes(searchValue);
 };

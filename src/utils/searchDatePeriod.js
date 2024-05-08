@@ -1,9 +1,9 @@
 import { Interval, DateTime } from 'luxon';
 
-export const searchDatePeriod = (value, record) => {
-  const currentDate = DateTime.fromISO(record.created_at, { zone: 'utc' });
-  const startDate = DateTime.fromFormat(value[0], 'yyyy-MM-dd');
-  const endDate = DateTime.fromFormat(value[1], 'yyyy-MM-dd');
+export const searchDatePeriod = (filterValue, recordValue) => {
+  const currentDate = DateTime.fromISO(recordValue);
+  const startDate = DateTime.fromFormat(filterValue[0], 'yyyy-MM-dd');
+  const endDate = DateTime.fromFormat(filterValue[1], 'yyyy-MM-dd');
 
   const interval = Interval.fromDateTimes(startDate, endDate);
 
